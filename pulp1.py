@@ -3,16 +3,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import networkx as nx
 from warehouse_generator import generate_warehouse_dataset, create_graph_from_data, set_node_positions
+import time
 
 def main():
-    num_items = 150
-    num_orders = 24
+    num_items = 200
+    num_orders = 50
     num_aisles = 9
-    max_items_per_order = 9
-    max_items_per_aisle = 20
+    max_items_per_order = 12
+    max_items_per_aisle = 30
     random_seed = 10 
-    num_batches = 8
-    batch_size = 3
+    num_batches = 5
+    batch_size = 10
     aisle_length = 200
     aisle_width = 12
 
@@ -75,7 +76,9 @@ def main():
     solver = pl.CPLEX_CMD()
 
     try:
+        start_time = time.time()
         model.solve(solver)
+        end_time = time.time()
     except KeyboardInterrupt:
         print("Solver was interrupted.")
         exit()
@@ -83,6 +86,7 @@ def main():
     if pl.LpStatus[model.status] == 'Optimal':
         print('Solution:')
         print('Objective value =', pl.value(model.objective))
+        print("Solution time: ", end_time - start_time)
         total_distance = 0
         for k in range(1, num_batches + 1):
             print(f'Batch {k}:')

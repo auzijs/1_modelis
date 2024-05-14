@@ -3,16 +3,17 @@ import numpy as np
 from warehouse_generator import generate_warehouse_dataset, create_graph_from_data, set_node_positions
 import matplotlib.pyplot as plt
 import networkx as nx
+import time
 
 def main():
-    num_items = 150
-    num_orders = 24
+    num_items = 200
+    num_orders = 50
     num_aisles = 9
-    max_items_per_order = 4
-    max_items_per_aisle = 20
+    max_items_per_order = 12
+    max_items_per_aisle = 30
     random_seed = 10 
-    num_batches = 8
-    batch_size = 3
+    num_batches = 5
+    batch_size = 10
     aisle_length = 200
     aisle_width = 12
 
@@ -74,13 +75,16 @@ def main():
     constraints += [D == (((LastA - 1) * 2 * aisle_width) + (aisle_length * N) + (LastA * 2 * aisle_width) + aisle_length * (N + 1)) / 2]
 
     problem = cp.Problem(objective, constraints)
-    problem.solve(solver=cp.CPLEX)
+    start_time = time.time()
+    problem.solve(solver=cp.CPLEX, verbose=True)
+    end_time = time.time()
 
     if (problem.status == cp.OPTIMAL) or (problem.status == cp.OPTIMAL_INACCURATE):
         if (problem.status == cp.OPTIMAL_INACCURATE):
             print('INNACURATE!')
         print('Solution:')
         print('Objective value =', problem.value)
+        print("Solution time: ", end_time - start_time)
         for k in range(num_batches):
             print(f'Batch {k+1}:')
             orders_in_batch = [i+1 for i in range(num_orders) if X.value[i, k] > 0.5]

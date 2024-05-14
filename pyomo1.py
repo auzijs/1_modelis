@@ -2,6 +2,7 @@ import pyomo.environ as pyo
 from warehouse_generator import generate_warehouse_dataset, create_graph_from_data, set_node_positions
 import matplotlib.pyplot as plt
 import networkx as nx
+import time
 
 
 def main():
@@ -90,7 +91,9 @@ def main():
     solver = pyo.SolverFactory('cplex')
 
     try:
+        start_time = time.time()
         solution = solver.solve(model, tee=True)
+        end_time = time.time()
     except KeyboardInterrupt:
         print("Solver was interrupted.")
         exit()
@@ -98,6 +101,7 @@ def main():
     if (solution.solver.termination_condition == pyo.TerminationCondition.optimal):
         print('Solution:')
         print("Objective expression:", model.objective.expr)
+        print("Solution time: ", end_time - start_time)
         total_distance = 0
         for k in model.batches:
             print(f'Batch {k}:')
